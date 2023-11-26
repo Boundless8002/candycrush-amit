@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 
 const CandyCrush = () => {
+    const [gameHistory, setGameHistory] = useState([]);
     const numRows = 10;
     const numCols = 10;
+    const maxMoves = 10; // Define the maximum number of moves
+    const targetScore = 100; // Define the target score to win
     const [gameState, setGameState] = useState({
         gamesPlayed: 0,
         gamesWon: 0,
         gamesLost: 0,
-        score: 0
+        score: 0,
+        movesLeft: maxMoves, // Track the remaining moves
     });
     const [grid, setGrid] = useState([]);
 
@@ -71,12 +75,69 @@ const CandyCrush = () => {
         });
 
         if (count >= 3) {
-            setGameState({
-                ...gameState,
-                score: gameState.score + count
-            });
+            const newScore = gameState.score + count;
+            const movesLeft = gameState.movesLeft - 1; // Decrease moves left
+
+            setGameState(prevState => ({
+                ...prevState,
+                score: newScore,
+                movesLeft: movesLeft,
+            }));
+
             setGrid(updatedGrid.map(row => row.map(val => (val === -1 ? Math.floor(Math.random() * 3) : val))));
+
+            checkGameOutcome(newScore, movesLeft); // Check if the game is won or lost
         }
+    };
+    const checkGameOutcome = (score, movesLeft) => {
+        if (score >= targetScore) {
+            handleGameWon();
+        } else if (movesLeft === 0) {
+            handleGameLost();
+        }
+    };
+
+    const handleGameWon = () => {
+        //  actions for the game won scenario
+
+        alert('Congratulations! You won the game!');
+        resetGame();
+    };
+
+    const handleGameLost = () => {
+        //  actions for the game lost scenario
+
+        alert('Oops! Game over. You lost.');
+        resetGame();
+    };
+    const resetGame = () => {
+        // Reset the game state here
+        const gameOutcome = {
+            score: gameState.score,
+            outcome:
+                gameState.score >= targetScore
+                    ? 'Win'
+                    : gameState.movesLeft === 0
+                        ? 'Loss'
+                        : 'Incomplete',
+        };
+
+        setGameHistory(prevHistory => [...prevHistory, gameOutcome]);
+
+        setGameState(prevState => ({
+            gamesPlayed: prevState.gamesPlayed + 1,
+            gamesWon:
+                prevState.score >= targetScore
+                    ? prevState.gamesWon + 1
+                    : prevState.gamesWon,
+            gamesLost:
+                prevState.movesLeft === 0 && prevState.score < targetScore
+                    ? prevState.gamesLost + 1
+                    : prevState.gamesLost,
+            score: 0,
+            movesLeft: maxMoves,
+        }));
+        initializeGrid();
     };
 
     return (
@@ -97,6 +158,17 @@ const CandyCrush = () => {
                         ))}
                     </div>
                 ))}
+            </div>
+            <div className="history">
+                <h3>Game History:</h3>
+                <ul>
+                    {gameHistory.map((game, index) => (
+                        <li key={index}>
+                            Game {index + 1}: Score - {game.score}, Outcome -{' '}
+                            {game.outcome}
+                        </li>
+                    ))}
+                </ul>
             </div>
         </div>
     );

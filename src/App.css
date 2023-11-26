@@ -41,7 +41,16 @@ body {
   align-items: center;
   padding-bottom: 100px;
 }
-
+.history {
+  width: 100%;
+  background-color: yellow;
+  padding-top: 50px;
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 @media screen and (max-width: 600px) {
   .grid {
     grid-template-columns: repeat(5, 100px);
